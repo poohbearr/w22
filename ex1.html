@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<style>
+    .node{
+        width: 100px;
+        background-color: green;
+        padding-left: 30px;
+        text-decoration: underline;
+    }
+</style>
+
+<div class="container">
+
+    <div class="node">
+        <b>ROOT</b>
+    </div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script>
+$(document).ready(function (){
+
+    let count = 0
+
+    $(".container").on("click", ".node", function (e){
+
+        console.log("-----------------")
+
+        e.preventDefault()
+        e.stopPropagation()
+
+        const targetNode = $(e.target)
+
+
+        targetNode.append(`<div class="node"><b>${count++}<button>x</button></b></div>`)
+
+    })
+
+    //상위항목 node를 지우자
+    $(".container").on("click", ".node button", function (e){
+        e.stopPropagation()
+        //console.log(e.target)
+
+        const target = $(e.target.closest(".node"))
+
+
+        target.remove() //순수DOM -> jquery로 바꾸자
+
+    })
+
+})
+
+</script>
+
+</body>
+</html>
