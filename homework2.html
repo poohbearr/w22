@@ -4,165 +4,147 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
-
+    <link rel="stylesheet" href="/resources/demos/style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
-
 </head>
 <body>
+
 <style>
-
-    #tabs {
-        width:40vw;
-        height:80vh;
-
-    }
-    * {
-        margin: 0;
-        padding: 0;
-    }
-    body {
-        padding-left: 20px;
+    .container{
         display: flex;
-        justify-content: center;
     }
-
-    .row {
-        width: 100vw;
-    }
-
-    .header {
-        background-color: yellow;
-        height: 10vh;
-    }
-
-    .main {
-        background-color: green;
+    .container .mapDiv {
+        width: 60vw;
         height: 100vh;
-        display: flex;
+    }
+    .container #tabsDiv{
+        width: 40vw;
 
     }
-
-
-    .main .mapDiv {
-
-        width: 50vw;
-        overflow: auto;
-        scrollbar-width: none;
-
-
-    }
-
 
 </style>
 
 <div class="container">
+    <!-- 지도를 표시할 div 입니다 -->
+    <div id="map" class="mapDiv"></div>
 
-    <div class="row header">
-        <h1>맛집</h1>
+    <div id="tabsDiv">
+        <ul>
+            <li><a href="#result" onclick="changeData('http://localhost:5555/w22/1team.json')" data-url="http://localhost:5555/w22/1team.json">한식</a></li>
+            <li><a href="#result" onclick="changeData('http://localhost:5555/w22/2team.json')" data-url="http://localhost:5555/w22/2team.json">일식</a></li>
+            <li><a href="#result" onclick="changeData('http://localhost:5555/w22/3team.json')" data-url="http://localhost:5555/w22/3team.json">프랜차이즈</a></li>
+        </ul>
+        <div id="result">
+            <ul id="list">
 
-    </div>
-    <div class="row main">
-        <div class="mapDiv">
-            <!-- 지도를 표시할 div 입니다 -->
-            <div id="map" style="width:49.9vw;height:80vh;"></div>
-
-        </div>
-        <div class="tabsDiv">
-            <div id="tabs">
-                <ul>
-                    <li><a href="#result" data-url="http://localhost:5555/w22/1team.json">한식</a></li>
-                    <li><a href="#result" data-url="http://localhost:5555/w22/2team.json">일식</a></li>
-                    <li><a href="#result" data-url="http://localhost:5555/w22/3team.json">프렌차이즈</a></li>
-                </ul>
-                <div id="result">
-                    <h1>RESULT DIV</h1>
-                </div>
-            </div>
-
+            </ul>
         </div>
     </div>
 
-</div>
+    <script>
+
+        $(document).ready(function() {
 
 
-<ul class="storeList">
-</ul>
+            $("#tabsDiv").tabs()
 
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=63d16a88212b46758759f3136d823241"></script>
-<script>
-    var mapContainer = document.getElementById('map'), // 지도를 표시할 div
-        mapOption = {
-            center: new kakao.maps.LatLng(37.4988972,127.0301971), // 지도의 중심좌표
-            level: 4 // 지도의 확대 레벨
-        };
+            $("#tabsDiv a").on("click", function (e){
+                e.preventDefault()
+                e.stopPropagation()
+                console.log(e.target)
+                //e.target.getAttribute("data-url")
+                const url = $(e.target).data("url")
 
-    // 지도를 표시할 div와  지도 옵션으로  지도를 생성합니다
-    var map = new kakao.maps.Map(mapContainer, mapOption);
-</script>
+                $.getJSON(url,function(arr){
+                    console.log("--------------------")
+                    console.log(arr)
+                })//getjson
 
+            })//click
 
-<script>
-    const markerArr = []
+        })
 
-    function showMarkers(stores){
+    </script>
 
-        //기존 마커들은 지워야 한다
-        for (let i = 0; i < markerArr.length; i++) {
-            markerArr[i].setMap(null)
-        }
+    <script src="ex4.js"></script>
 
-        for (let i = 0; i < stores.length; i++) {
-            const store = stores[i]
-            const latLng = new kakao.maps.LatLng(store.lat, store.lng)
-            const marker = new kakao.maps.Marker({
-                map: map,
-                position: latLng,
-                title: store.name
-            })
-            markerArr.push(marker)
-        }
-    }
+    <script>
 
-    function makeList(arr){
-        const ulEle = document.querySelector("#result")
-        let str = ''
-
-        for (let i = 0; i < arr.length; i++) {
-            const {sno,sname,menu,Lat,Lng} = arr[i]
-            console.log(arr[i])
-            str += `<li data-name="${arr[i].sname}" >${arr[i].sname}</li>`
-            console.log(str)
-        }//end for
-
-        ulEle.innerHTML = str
-
-    }
-
-    $(document).ready(function() {
-        $("#tabs").tabs()
-
-        $("#tabs a").on("click", function (e){
-            e.preventDefault()
-            e.stopPropagation()
-            console.log(e.target)
-            //e.target.getAttribute("data-url")
-            const url = $(e.target).data("url")
-
-            $.getJSON(url,function(arr){
-
+        function changeData(url) {
+            storeService.loadData(url, (arr) => {
+                console.log("callback..............")
                 console.log(arr)
                 makeList(arr)
                 showMarkers(arr)
+            })
+        }
 
-            })//getjson
+        function makeList(arr) {
+            const storeULEle = document.querySelector("#list")
+            let str = ''
+
+            for (let i = 0; i < arr.length ; i++) {
+                console.log(arr[i])
+                str += `<li data-idx="${i}">${arr[i].sname}</li>`
+            }//end for
+
+            storeULEle.innerHTML = str
+        }
+
+        const markerArr = []
+
+        function showMarkers(stores){
+
+            //기존 마커들은 지워야 한다.
+            for (let i = 0; i < markerArr.length; i++) {
+                markerArr[i].setMap(null)
+            }
+
+            for (let i = 0; i <stores.length ; i++) {
+                const store = stores[i]
+                const latLng = new kakao.maps.LatLng(store.lat, store.lng);
+                const marker = new kakao.maps.Marker({
+                    map:map,
+                    position: latLng,
+                    title: store.sname
+                })
+                markerArr.push(marker)
+            }//end for
+        }
+
+        document.querySelector("#result").addEventListener("click", (e) => {
+            e.preventDefault()
+            e.stopPropagation()
+
+            const target = e.target
+
+            console.log('--------------------------------------------')
+            console.log(target)
 
 
-        })//click
 
-    })
+            const idx = target.getAttribute("data-idx")
+            const store = storeService.getDataByIndex(idx)
+            console.log(store)
 
-</script>
+            showMarkers([store])
 
+        }, false)
+
+    </script>
+
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=2e9476c98ab01a006c211646240c84c1"></script>
+    <script>
+        var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+            mapOption = {
+                center: new kakao.maps.LatLng(37.49878542586766, 127.02806153138332), // 지도의 중심좌표
+                level: 3 // 지도의 확대 레벨
+            };
+        // 지도를 표시할 div와  지도 옵션으로  지도를 생성합니다
+        var map = new kakao.maps.Map(mapContainer, mapOption);
+    </script>
+
+</div>
 </body>
 </html>

@@ -17,11 +17,17 @@
 
 </select>
 
+<ul class="details">
+
+</ul>
+
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 <script>
 
     $(document).ready(function (e){
+
+        let storesArray =[]
 
         $("select[name='category']").on("change", function (e){
             const url = $("select[name='category'] option:selected").val() //selected..jquery에서만 가능?
@@ -31,9 +37,30 @@
             }
             $.getJSON(url, function (arr){
                 console.log(arr)
+
+                let str = '<option value="0">-------</option>'
+                for (let i = 0; i < arr.length; i++) {
+                    const {sno,sname} = arr[i]
+                    console.log(sno, sname)
+                    str += `<option value="${sno}">${sname}</option>`
+                }//end for
+                $("select[name='stores']").html(str)
             })
 
         })
+
+        $("select[name='stores']").on("change", function(e){
+           const sno = e.target.value
+
+            const filterResult = storesArray.filter(store => store.sno === sno)
+
+            console.log(filterResult)
+
+            const menus = filterResult.menu.split(",")
+
+            console.log(menus)
+        })
+
     })
 
 </script>
